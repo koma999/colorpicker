@@ -43,8 +43,8 @@ public class ColorPickerView extends View {
 	private Integer initialColor;
 	private Integer pickerColorEditTextColor;
 	private Paint colorWheelFill = PaintBuilder.newPaint().color(0).build();
-	private Paint selectorStroke1 = PaintBuilder.newPaint().color(0xffffffff).build();
-	private Paint selectorStroke2 = PaintBuilder.newPaint().color(0xff000000).build();
+	private Paint selectorStroke1 = PaintBuilder.newPaint().color(0xffffffff).style(Paint.Style.STROKE).build();
+	private Paint selectorStroke2 = PaintBuilder.newPaint().color(0xff000000).style(Paint.Style.STROKE).build();
 	private Paint alphaPatternPaint = PaintBuilder.newPaint().build();
 	private ColorCircle currentColorCircle;
 
@@ -278,11 +278,18 @@ public class ColorPickerView extends View {
 
             colorWheelFill.setColor(Color.HSVToColor(currentColorCircle.getHsvWithLightness(this.lightness)));
             colorWheelFill.setAlpha((int) (alpha * 0xff));
-            canvas.drawCircle(currentColorCircle.getX(), currentColorCircle.getY(), size * STROKE_RATIO, selectorStroke1);
-            canvas.drawCircle(currentColorCircle.getX(), currentColorCircle.getY(), size * (1 + (STROKE_RATIO - 1) / 2), selectorStroke2);
 
-            canvas.drawCircle(currentColorCircle.getX(), currentColorCircle.getY(), size, alphaPatternPaint);
-            canvas.drawCircle(currentColorCircle.getX(), currentColorCircle.getY(), size, colorWheelFill);
+            float innerRadius = size;
+            float mediumRadius = size * (1 + (STROKE_RATIO - 1) / 2);
+            float outerRadius = size * STROKE_RATIO;
+
+            canvas.drawCircle(currentColorCircle.getX(), currentColorCircle.getY(), mediumRadius, alphaPatternPaint);
+            canvas.drawCircle(currentColorCircle.getX(), currentColorCircle.getY(), mediumRadius, colorWheelFill);
+
+            selectorStroke1.setStrokeWidth((outerRadius - innerRadius) / 2f);
+            canvas.drawCircle(currentColorCircle.getX(), currentColorCircle.getY(), mediumRadius, selectorStroke1);
+            selectorStroke2.setStrokeWidth((mediumRadius - innerRadius) / 2f);
+            canvas.drawCircle(currentColorCircle.getX(), currentColorCircle.getY(), (innerRadius + mediumRadius) / 2f, selectorStroke2);
 		}
 	}
 
