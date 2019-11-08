@@ -158,12 +158,12 @@ public class ColorPickerView extends View {
 			width = height;
 		if (width <= 0)
 			return;
-		if (colorWheel == null) {
+		if (colorWheel == null || colorWheel.getWidth() != width) {
 			colorWheel = Bitmap.createBitmap(width, width, Bitmap.Config.ARGB_8888);
 			colorWheelCanvas = new Canvas(colorWheel);
 			alphaPatternPaint.setShader(PaintBuilder.createAlphaPatternShader(26));
 		}
-		if (currentColor == null) {
+		if (currentColor == null || currentColor.getWidth() != width) {
 			currentColor = Bitmap.createBitmap(width, width, Bitmap.Config.ARGB_8888);
 			currentColorCanvas = new Canvas(currentColor);
 		}
@@ -210,10 +210,10 @@ public class ColorPickerView extends View {
 		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 		int height = 0;
 		if (heightMode == MeasureSpec.UNSPECIFIED)
-			height = widthMeasureSpec;
+			height = heightMeasureSpec;
 		else if (heightMode == MeasureSpec.AT_MOST)
 			height = MeasureSpec.getSize(heightMeasureSpec);
-		else if (widthMode == MeasureSpec.EXACTLY)
+		else if (heightMode == MeasureSpec.EXACTLY)
 			height = MeasureSpec.getSize(heightMeasureSpec);
 		int squareDimen = width;
 		if (height < width)
@@ -374,16 +374,18 @@ public class ColorPickerView extends View {
 		int lastSelectedColor = getSelectedColor();
 
 		this.lightness = lightness;
-		this.initialColor = Color.HSVToColor(Utils.alphaValueAsInt(this.alpha), currentColorCircle.getHsvWithLightness(lightness));
-		if (this.colorEdit != null)
-			this.colorEdit.setText(Utils.getHexString(this.initialColor, this.alphaSlider != null));
-		if (this.alphaSlider != null && this.initialColor != null)
-			this.alphaSlider.setColor(this.initialColor);
+		if (currentColorCircle != null) {
+            this.initialColor = Color.HSVToColor(Utils.alphaValueAsInt(this.alpha), currentColorCircle.getHsvWithLightness(lightness));
+            if (this.colorEdit != null)
+                this.colorEdit.setText(Utils.getHexString(this.initialColor, this.alphaSlider != null));
+            if (this.alphaSlider != null && this.initialColor != null)
+                this.alphaSlider.setColor(this.initialColor);
 
-		callOnColorChangedListeners(lastSelectedColor, this.initialColor);
+            callOnColorChangedListeners(lastSelectedColor, this.initialColor);
 
-		updateColorWheel();
-		invalidate();
+            updateColorWheel();
+            invalidate();
+        }
 	}
 
 	public void setColor(int color, boolean updateText) {
